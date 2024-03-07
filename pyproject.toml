@@ -1,0 +1,23 @@
+[project]
+name = "acaer"
+version = "0.1.0"
+description = "Arithmetic expression evaluation using Reverse Polish Notation"
+dependencies = [
+    "rich>=13.7.1",
+]
+readme = "README.md"
+requires-python = ">= 3.11"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.rye]
+managed = true
+dev-dependencies = []
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/acaer"]
