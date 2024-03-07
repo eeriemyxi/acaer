@@ -1,3 +1,3 @@
 # acaer
 
-Describe your project here.
+Project state: alpha
