@@ -77,9 +77,15 @@ def goto_address(line, col) -> str:
 def tokenize_expr(expr: str) -> list[Token]:
     stack = list()
     line = 1
-    for col, c in enumerate(expr, 1):
+    col = 0
+
+    for c in expr:
+        col += 1
+
         if c in string.whitespace:
-            line += c == "\n"
+            if c == "\n":
+                line += 1
+                col = 0
             continue
 
         current_token = LITERAL_TOKENS.get(c)
