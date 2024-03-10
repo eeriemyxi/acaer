@@ -12,21 +12,8 @@ log = logging.getLogger(__name__)
 
 
 class TokenType(enum.Enum):
-    ZERO = enum.auto()
-    ONE = enum.auto()
-    TWO = enum.auto()
-    THREE = enum.auto()
-    FOUR = enum.auto()
-    FIVE = enum.auto()
-    SIX = enum.auto()
-    SEVEN = enum.auto()
-    EIGHT = enum.auto()
-    NINE = enum.auto()
-
-    MUL = enum.auto()
-    DIV = enum.auto()
-    ADD = enum.auto()
-    SUB = enum.auto()
+    DIGIT = enum.auto()
+    OPERATOR = enum.auto()
 
 
 @dataclasses.dataclass
@@ -37,23 +24,22 @@ class Token:
     line: int
     column: int
 
+    @classmethod
+    def from_char(cls, char: str, line: int, column: int) -> "Token | None":
+        if char.isdigit():
+            token_type = TokenType.DIGIT
+        elif char in "*/+-":
+            token_type = TokenType.OPERATOR
+        else:
+            return None
 
-LITERAL_TOKENS = {
-    "0": TokenType.ZERO,
-    "1": TokenType.ONE,
-    "2": TokenType.TWO,
-    "3": TokenType.THREE,
-    "4": TokenType.FOUR,
-    "5": TokenType.FIVE,
-    "6": TokenType.SIX,
-    "7": TokenType.SEVEN,
-    "8": TokenType.EIGHT,
-    "9": TokenType.NINE,
-    "*": TokenType.MUL,
-    "/": TokenType.DIV,
-    "+": TokenType.ADD,
-    "-": TokenType.SUB,
-}
+        return cls(
+            token_type=token_type,
+            literal=char,
+            precedence=get_precedence(char),
+            line=line,
+            column=column,
+        )
 
 
 def get_precedence(char: str):
@@ -67,7 +53,7 @@ def get_precedence(char: str):
 
 
 def get_expr() -> str:
-    return "1 + 2 * 6 / 2 * oarsetaortsn6 / 2"
+    return "1 + 2\n * 6 / 2 * oarsetaortsn6 / 2"
 
 
 def goto_address(line, col) -> str:
@@ -88,21 +74,14 @@ def tokenize_expr(expr: str) -> list[Token]:
                 col = 0
             continue
 
-        current_token = LITERAL_TOKENS.get(c)
+        current_token = Token.from_char(c, line, col)
         if not current_token:
             log.warning("Unexpected char %s: %s", goto_address(line, col), repr(c))
             log.info("Ignoring char %s: %s", goto_address(line, col), repr(c))
             continue
 
-        stack.append(
-            Token(
-                token_type=current_token,
-                literal=c,
-                precedence=get_precedence(c),
-                line=line,
-                column=col,
-            )
-        )
+        stack.append(current_token)
+
     return stack
 
 
